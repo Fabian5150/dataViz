@@ -1,13 +1,13 @@
 library(ggplot2)
 library(MASS)
 # First I wanted to check out the available datasets
-# data(package="ggplot2")
-# data(package = .packages(all.available = TRUE))
+data(package="ggplot2")
+data(package = .packages(all.available = TRUE))
 
 # This dataset shows the effect of swedish speed limits on accidents
 # I found it quite interesting, as the introduction of a speed limit is a hot topic in germany right now
 # and learning something from the scandinavians turned out pretty well in the past
-# MASS::Traffic
+MASS::Traffic
 
 data("Traffic", package="MASS")
 
@@ -16,7 +16,15 @@ data("Traffic", package="MASS")
 summary(Traffic)
 str(Traffic)
 
-ggplot(data = Traffic, aes(x = day, y = y))
-  +geom_point(aes(col=limit, size=2))
-  +labs(y="Accidents", y="Day")
+ggplot(Traffic, aes(x = day, y = y)) +
+  geom_point(aes(color = limit), size = 1) +
+  labs(y = "Accidents", x = "Day")
+# Not quite right yet, Renders day n of 1961 and 1962 on the same x position..
 
+# TBD: Jahr irgendwie auf X Achse noch dazu schreiben
+
+
+# Above not very insightful. Maybe do simple histogram instead:
+ggplot(Traffic, aes(x=limit, y=y, fill=limit)) +
+  geom_boxplot() +
+  labs(x="Speed Limit", y="Accidents")
