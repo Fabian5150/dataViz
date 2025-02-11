@@ -21,7 +21,12 @@ ggplot(Traffic, aes(x = day, y = y)) +
   labs(y = "Accidents", x = "Day")
 # Not quite right yet, Renders day n of 1961 and 1962 on the same x position..
 
-# TBD: Jahr irgendwie auf X Achse noch dazu schreiben
+# data preparation: Make dates continuous
+Traffic$date_cont <- (ifelse(Traffic$year == "1961", Traffic$day, Traffic$day + 92))
+
+ggplot(Traffic, aes(x = date_cont, y = y)) +
+  geom_point(aes(color = limit), size = 1) +
+  labs(y = "Accidents", x = "Day")
 
 
 # Above not very insightful. Maybe do simple histogram instead:
