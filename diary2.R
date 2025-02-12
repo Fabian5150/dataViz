@@ -138,3 +138,24 @@ cat(mean_y)
 # I will only remove the mean of 'y', as the other columns contain categorial data
 
 traffic_3 <- mutate(traffic_2, y = y - mean_y)
+
+# Comparison: Mean removal in groups:
+remove_mean <- function(dataset, property){
+  mean_prop <- mean(property)
+
+  cat(mean_prop, "\n")
+  
+  return (mutate(dataset, y = property - mean_prop))
+}
+
+traffic_limit_clean <- remove_outliers(traffic_limit, traffic_limit$y)
+traffic_no_limit_clean <- remove_outliers(traffic_no_limit, traffic_no_limit$y)
+
+traffic_4 <- rbind(
+  remove_mean(traffic_limit_clean, traffic_limit_clean$y),
+  remove_mean(traffic_no_limit_clean, traffic_no_limit_clean$y)
+)
+
+ggplot(traffic_4, aes(x=limit, y=y, fill=limit)) +
+  geom_boxplot() +
+  labs(x="Speed Limit", y="Accidents")
