@@ -159,3 +159,11 @@ traffic_4 <- rbind(
 ggplot(traffic_4, aes(x=limit, y=y, fill=limit)) +
   geom_boxplot() +
   labs(x="Speed Limit", y="Accidents")
+
+# Scaling
+sd_y <- sd(traffic_3$y)
+traffic_5 <- mutate(traffic_3, y = y / sd_y)
+
+ggplot(traffic_5, aes(x=limit, y=y, fill=limit)) +
+  geom_boxplot() +
+  labs(x="Speed Limit", y="Accidents")
