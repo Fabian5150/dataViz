@@ -26,7 +26,7 @@ colSums(is.na(Traffic))
 
 # Checking Variance:
 var(Traffic$y)
-# => high variance and small data set... Not the best to dra conclusions
+# => high variance and small data set... Not the best to draw conclusions from
 
 # Before looking at the data I thought that there would have been a law for a general speed limit,
 # so I expected a nice graph view where you can see the accidents way lower after this
@@ -73,6 +73,9 @@ quantile(Traffic$y)
 hist(Traffic$y, xlab="Accidents")
 
 # Try to create Boxplot w/o outliers
+# Take a look at the biggest values:
+tail(Traffic[order(Traffic$y),], 10)
+
 # Common approach: Interquartile Range
 Q1 <- quantile(Traffic$y, 0.25)
 Q3 <- quantile(Traffic$y, 0.75)
@@ -89,5 +92,41 @@ outliers <- subset(Traffic, y > upper_bound)
 print(outliers)
 # => 4 outliers, all of them without speed limit
 
-traffic_clean <- subset(Traffic, y <= upper_bound)
-print(traffic_clean)
+# To denote processing of the dataset, I will use indices
+traffic_1 <- subset(Traffic, y <= upper_bound)
+print(traffic_1)
+hist(traffic_1$y, xlab="Accidents")
+
+# However Boxplot shows that 'yes' has two outliers, far away from the rest of the data
+# Maybe remove outliers for both categories individually?
+traffic_limit <- subset(Traffic, limit == 'yes')
+tail(traffic_limit[order(traffic_limit$y),], 10)
+
+remove_outliers <- function(dataset, property){
+  Q1 <- quantile(property, 0.25)
+  Q3 <- quantile(property, 0.75)
+  IQR <- Q3 - Q1
+  
+  lower_bound <- Q1 - 1.5 * IQR
+  upper_bound <- Q3 + 1.5 * IQR
+  
+  cat(lower_bound, upper_bound, "\n")
+  print(subset(dataset, (y > upper_bound | y < lower_bound)))
+  
+  return (subset(dataset, (y < upper_bound & y > lower_bound)))
+}
+
+traffic_no_limit <- subset(Traffic, limit == 'no')
+
+# Dataset with outliers removed for both categories
+traffic_2 <- rbind(
+  remove_outliers(traffic_limit, traffic_limit$y),
+  remove_outliers(traffic_no_limit, traffic_no_limit$y)
+)
+
+# Now looking at the Boxplot:
+ggplot(traffic_2, aes(x=limit, y=y, fill=limit)) +
+  geom_boxplot() +
+  labs(x="Speed Limit", y="Accidents")
+
+# Mean removal
