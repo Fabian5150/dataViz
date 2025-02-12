@@ -1,5 +1,8 @@
+install.packages("dplyr")
+
 library(ggplot2)
 library(MASS)
+library(dplyr)
 # First I wanted to check out the available datasets
 data(package="ggplot2")
 data(package = .packages(all.available = TRUE))
@@ -130,3 +133,8 @@ ggplot(traffic_2, aes(x=limit, y=y, fill=limit)) +
   labs(x="Speed Limit", y="Accidents")
 
 # Mean removal
+mean_y <- mean(traffic_2$y)
+cat(mean_y)
+# I will only remove the mean of 'y', as the other columns contain categorial data
+
+traffic_3 <- mutate(traffic_2, y = y - mean_y)
