@@ -1,8 +1,10 @@
 install.packages("dplyr")
+install.packages("ggalt")
 
 library(ggplot2)
 library(MASS)
 library(dplyr)
+library(ggalt)
 # First I wanted to check out the available datasets
 data(package="ggplot2")
 data(package = .packages(all.available = TRUE))
@@ -167,3 +169,50 @@ traffic_5 <- mutate(traffic_3, y = y / sd_y)
 ggplot(traffic_5, aes(x=limit, y=y, fill=limit)) +
   geom_boxplot() +
   labs(x="Speed Limit", y="Accidents")
+
+
+# Some more graphs
+
+# Marks difference between limit/no-limit clearer. But showing trend doesn't make much sense
+ggplot(traffic_2, aes(x = date_cont, y = y)) +
+  geom_smooth(aes(color = limit)) +
+  labs(y = "Accidents", x = "Day")
+
+# Shows that mostly a similar amount of accidents occurs, but with no limit the range goes up higher (even with removed outliers)
+ggplot(traffic_2, aes(x=limit, y=y, fill=limit)) + 
+  geom_violin(trim=FALSE)+
+  geom_boxplot(width=0.1, fill="white")+
+  labs(title="Amount of daily accidents with and without speed limit",x="Limit", y = "Accidents")
+
+# With centered data:
+ggplot(traffic_5, aes(x=limit, y=y, fill=limit)) + 
+  geom_violin(trim=FALSE)+
+  geom_boxplot(width=0.1, fill="white")+
+  labs(title="Amount of daily accidents with and without speed limit",x="Limit", y = "Accidents")
+
+# With original data:
+ggplot(Traffic, aes(x=limit, y=y, fill=limit)) + 
+  geom_violin(trim=FALSE)+
+  geom_boxplot(width=0.1, fill="white")+
+  labs(title="Amount of daily accidents with and without speed limit",x="Limit", y = "Accidents")
+# => Removing outliers was a good idea
+
+
+# Clustering
+ggplot(traffic_5, aes(date_cont, y, col=limit)) + 
+  geom_point(aes(shape=limit), size=2) +
+  geom_encircle(data = subset(traffic_5, limit == 'yes'), aes(date_cont, y, col=limit)) +
+  geom_encircle(data = subset(traffic_5, limit == 'no'), aes(date_cont, y, col=limit))
+# => Due to mean removal, variance of 'no limit' group gets more visible
+
+# Comparing year 1 and year 2
+# Because we removed the outliers, we have missing data now
+year_1 <- subset(traffic_2, year == 1961)
+year_2 <- subset(traffic_2, year == 1962)
+
+ggplot(traffic_2, aes(x = day, y = y)) +
+  geom_smooth(aes(color = paste0(year))) +
+  #geom_point(aes(color=limit), size=2)
+  labs(y = "Accidents", x = "Day")
+# => smoothing helps a lot to compare both years, distorts reality however
+
