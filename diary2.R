@@ -17,8 +17,8 @@ MASS::Traffic
 
 data("Traffic", package="MASS")
 
-head(Traffic, 5)
-tail(Traffic, 5)
+head(Traffic, 3)
+tail(Traffic, 3)
 
 # Shows that the dataset is not really big. Only 184 observations
 # Taken from two years time, 1961-1962 Probably not the best data to make decision for the present...
@@ -50,7 +50,7 @@ ggplot(Traffic, aes(x = date_cont, y = y)) +
   geom_point(aes(color = limit), size = 1) +
   labs(y = "Accidents", x = "Day")
 
-# Above not very insightful. Maybe do simple histogram instead:
+# Above not very insightful. Maybe do simple Boxplot instead:
 ggplot(Traffic, aes(x=limit, y=y, fill=limit)) +
   geom_boxplot() +
   labs(x="Speed Limit", y="Accidents")
@@ -71,7 +71,7 @@ pairs(Traffic[,c(2,4)])
 
 # Let's make 'limit' numeric, so we can check it's correlation with the amount of accidents
 Traffic$limit_num <- ifelse(Traffic$limit == 'no', 0, 1)
-cor(Traffic[,c("y","limit_num")])
+cor(Traffic[,c("year", "day","y","limit_num")])
 
 # Looking for outliers: In Boxplot visible, that positive outliers exist
 quantile(Traffic$y)
@@ -81,7 +81,7 @@ hist(Traffic$y, xlab="Accidents")
 # Take a look at the biggest values:
 tail(Traffic[order(Traffic$y),], 10)
 
-# Common approach: Interquartile Range
+#Common approach: Interquartile Range
 Q1 <- quantile(Traffic$y, 0.25)
 Q3 <- quantile(Traffic$y, 0.75)
 IQR <- Q3 - Q1
@@ -116,9 +116,9 @@ remove_outliers <- function(dataset, property){
   upper_bound <- Q3 + 1.5 * IQR
   
   cat(lower_bound, upper_bound, "\n")
-  print(subset(dataset, (y > upper_bound | y < lower_bound)))
+  print(subset(dataset, (property > upper_bound | property < lower_bound)))
   
-  return (subset(dataset, (y < upper_bound & y > lower_bound)))
+  return (subset(dataset, (property < upper_bound & property > lower_bound)))
 }
 
 traffic_no_limit <- subset(Traffic, limit == 'no')
@@ -149,6 +149,10 @@ remove_mean <- function(dataset, property){
   
   return (mutate(dataset, y = property - mean_prop))
 }
+
+ggplot(traffic_4, aes(x=limit, y=y, fill=limit)) +
+  geom_boxplot() +
+  labs(x="Speed Limit", y="Accidents")
 
 traffic_limit_clean <- remove_outliers(traffic_limit, traffic_limit$y)
 traffic_no_limit_clean <- remove_outliers(traffic_no_limit, traffic_no_limit$y)
@@ -212,7 +216,26 @@ year_2 <- subset(traffic_2, year == 1962)
 
 ggplot(traffic_2, aes(x = day, y = y)) +
   geom_smooth(aes(color = paste0(year))) +
-  #geom_point(aes(color=limit), size=2)
+  #geom_point(aes(color = paste0(year), shape=limit))
   labs(y = "Accidents", x = "Day")
 # => smoothing helps a lot to compare both years, distorts reality however
 
+# Clustering year 1 and year 2
+ggplot(traffic_2, aes(x = day, y = y)) +
+  geom_point(aes(color = paste0(year), shape=limit)) +
+  geom_encircle(data = subset(traffic_2, year == 1961), aes(day, y, col=paste0(year))) +
+  geom_encircle(data = subset(traffic_2, year == 1962), aes(day, y, col=paste0(year)))
+labs(y = "Accidents", x = "Day")
+
+# Difference between limit / not limit?
+ggplot(traffic_limit_clean, aes(x = day, y = y)) +
+  geom_point(aes(color = paste0(year), shape=limit)) +
+  geom_encircle(data = subset(traffic_limit_clean, year == 1961), aes(day, y, col=paste0(year))) +
+  geom_encircle(data = subset(traffic_limit_clean, year == 1962), aes(day, y, col=paste0(year)))
+labs(y = "Accidents", x = "Day")
+
+ggplot(traffic_no_limit_clean, aes(x = day, y = y)) +
+  geom_point(aes(color = paste0(year), shape=limit)) +
+  geom_encircle(data = subset(traffic_no_limit_clean, year == 1961), aes(day, y, col=paste0(year))) +
+  geom_encircle(data = subset(traffic_no_limit_clean, year == 1962), aes(day, y, col=paste0(year)))
+labs(y = "Accidents", x = "Day")
