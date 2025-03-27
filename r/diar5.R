@@ -76,3 +76,24 @@ scatter3D(x, y, z,
 )
 
 # Histogram
+x.breaks <- seq(min(math$ve), max(math$ve), length.out = 10)
+y.breaks <- seq(min(math$me), max(math$me), length.out = 10)
+
+xy.table <- table(cut(math$ve, x.breaks), cut(math$me, y.breaks))
+
+z <- as.matrix(xy.table)
+
+x.mids <- (head(x.breaks, -1) + tail(x.breaks, -1)) / 2
+y.mids <- (head(y.breaks, -1) + tail(y.breaks, -1)) / 2
+
+hist3D(
+  x = x.mids,
+  y = y.mids,
+  z = z,
+  scale = TRUE,
+  border = "black",
+  xlab = "vectors",
+  ylab = "mechanics",
+  zlab = "frequency",
+  ticktype = "detailed"
+)
