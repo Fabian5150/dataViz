@@ -1,10 +1,14 @@
 install.packages("ggplot2")
 install.packages("plot3D")
+install.packages("plot3Drgl")
 install.packages("MASS")
+install.packages("magick")
 
+library(magick)
 library(MASS)
 library("ggplot2")
 library("plot3D")
+library("plot3Drgl")
 library(doBy)
 # Search interesting dataset
 data(package = .packages(all.available = TRUE))
@@ -52,7 +56,8 @@ scatter3D(x, y, z,
           pch=19
 )
 
-# linear regression from https://www.sthda.com/english/wiki/impressive-package-for-3d-and-4d-graph-r-software-and-data-visualization?title=impressive-package-for-3d-and-4d-graph-r-software-and-data-visualization
+# linear regression 
+# from furhter resource on canvas: https://www.sthda.com/english/wiki/impressive-package-for-3d-and-4d-graph-r-software-and-data-visualization?title=impressive-package-for-3d-and-4d-graph-r-software-and-data-visualization
 fit <- lm(z ~ x + y)
 
 grid.lines = 26
@@ -63,8 +68,8 @@ z.pred <- matrix(predict(fit, newdata = xy),
                  nrow = grid.lines, ncol = grid.lines)
 
 scatter3D(x, y, z,
-          clab = c("Mechanics"),
-          col = colors,
+          #clab = c("Mechanics"),
+          #col = colors,
           xlab = "Algebra",
           ylab = "Analysis",
           zlab = "Statistics",
@@ -76,8 +81,8 @@ scatter3D(x, y, z,
 )
 
 # Histogram
-x.breaks <- seq(min(math$ve), max(math$ve), length.out = 10)
-y.breaks <- seq(min(math$me), max(math$me), length.out = 10)
+x.breaks <- seq(min(math$ve), max(math$ve), length.out = 15)
+y.breaks <- seq(min(math$me), max(math$me), length.out = 15)
 
 xy.table <- table(cut(math$ve, x.breaks), cut(math$me, y.breaks))
 
@@ -97,3 +102,48 @@ hist3D(
   zlab = "frequency",
   ticktype = "detailed"
 )
+plotrgl()
+
+# Visualisations inspired by 'WorkWithImages.Rmd'
+# Remake of map (both images from may of 2024 according to google)
+count_colors <- function(image){
+  data <- image_data(image) %>%
+    apply(2:3, paste, collapse= "") %>% 
+    as.vector %>% table() %>%  as.data.frame() %>% 
+    setNames(c("col", "freq"))
+  data$col <- paste("#",data$col, sep="")
+  return(data)
+}
+plot_hist <- function(data){
+  img <- image_graph(500, 500)
+  plot <- ggplot2::ggplot(data) + 
+    geom_bar(aes(col, freq, fill = I(col)), stat = 'identity') +
+    theme(axis.title = element_blank(), axis.text.y = element_blank(),
+          axis.ticks.y = element_blank())
+  print(plot)
+  dev.off()
+  img
+}
+
+opladen <- image_read("~/gitProjects/uni/dpv/diary/r/assets/opladen-google-earth.png") %>% image_scale('x500')
+opladen
+
+quantized <- image_quantize(opladen, 6, colorspace = 'YCbCr')
+quantized
+
+orig1 <- image_crop(opladen, '500x500')
+hist1 <- image_crop(quantized, '500x500') %>% count_colors %>% plot_hist()
+opladen_final <- image_append(c(orig1, hist1))
+opladen_final
+
+
+umea <- image_read("~/gitProjects/uni/dpv/diary/r/assets/umea-google-earth.png") %>% image_scale('x500')
+umea
+
+quantized <- image_quantize(umea, 6, colorspace = 'YCbCr')
+quantized
+
+orig1 <- image_crop(umea, '500x500')
+hist1 <- image_crop(quantized, '500x500') %>% count_colors %>% plot_hist()
+umea_final <- image_append(c(orig1, hist1))
+umea_final
