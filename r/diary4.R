@@ -29,11 +29,10 @@ summary(wine5)
 raw_pca <- princomp(wine5, cor = TRUE) # => uses correlation instead of covariance, because data is not scaled
 summary(raw_pca)
 raw_pca$loadings
-print(raw_pca$scores)
 
 # Using wine quality for class
 # Raw PCA visualisation
-ggplot(data.frame(raw_pca$scores), aes(x = Comp.1, y = Comp.2, color=paste0(wine5$quality)  )) +
+ggplot(data.frame(raw_pca$scores), aes(x = Comp.1, y = Comp.2, color=paste0(wine5$quality) )) +
   geom_point(size = 1) +
   labs(x = "PCA 1", y = "PCA 2")
 
@@ -43,10 +42,11 @@ ggplot(data.frame(raw_pca$scores), aes(x = Comp.1, y = Comp.2, size = Comp.3, co
 
 # PCA with scaled data and quality removed
 scaled_wine <- scale(wine5[, 1:4])
-scaled_pca <- princomp(scaled_wine, cor = FALSE)
+scaled_pca <- princomp(scaled_wine)
 summary(scaled_pca)
+scaled_pca$loadings
 
-ggplot(data.frame(scaled_pca$scores), aes(x = Comp.1, y = Comp.2, color=paste0(wine5$quality)  )) +
+ggplot(data.frame(scaled_pca$scores), aes(x = Comp.1, y = Comp.2))+#, color=paste0(wine5$quality)  )) +
   geom_point(size = 1) +
   labs(x = "PCA 1", y = "PCA 2")
 
@@ -64,7 +64,7 @@ ggplot(data.frame(scaled_pca$scores), aes(x = Comp.1, y = Comp.2, color=paste0(w
 # Raw LDA
 linear <- lda(quality~. - quality, data = wine5) # uses quality as class and removes it as axis for the lda itself
 linear
-#hist(linear$LD1)
+
 ggord(linear, paste0(wine5$quality),
       ylim = c(-5, 5),
       xlim=c(-6,8))
@@ -74,7 +74,7 @@ ggord(linear, paste0(wine5$quality),
 scaled_wine <-  as.data.frame(scale(wine5))
 scaled_linear <- lda(quality~. - quality, data = scaled_wine) # uses quality as class and removes it as axis for the lda itself
 scaled_linear
-#hist(linear$LD1)
+
 ggord(scaled_linear, paste0(wine5$quality),
       ylim = c(-5, 5),
       xlim=c(-6,8))
@@ -97,4 +97,6 @@ fviz_cluster(km_scaled, data = wine5,
              ggtheme = theme_bw()
 )
 
-#TBD run k-means on pca like at end of slides
+#TBD:
+# run k-means on pca like at end of slides
+# run k-means and lda with train- & test set to get right number of clusters
