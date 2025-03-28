@@ -3,7 +3,12 @@ install.packages("plot3D")
 install.packages("plot3Drgl")
 install.packages("MASS")
 install.packages("magick")
+#install.packages("opencv")
 
+#library(opencv)
+install.packages("pdftools")
+install.packages("tesseract")
+library(tesseract)
 library(magick)
 library(MASS)
 library("ggplot2")
@@ -18,8 +23,6 @@ doBy::math
 
 data("math", package="doBy")
 # "This data frame contains the following columns: mechanics, vectors, algebra, analysis, statistics."
-# => Reduce to 3 dimensions: grades in algebra, analysis and statistics
-# math <- subset(math, select = -c(1,2))
 
 summary(math)
 
@@ -147,3 +150,34 @@ orig1 <- image_crop(umea, '500x500')
 hist1 <- image_crop(quantized, '500x500') %>% count_colors %>% plot_hist()
 umea_final <- image_append(c(orig1, hist1))
 umea_final
+
+#opencv didn't work :(
+
+# Work with tesseract
+letter <- image_read("~/gitProjects/uni/dpv/diary/r/assets/letter.png")
+
+letter
+
+letter %>%
+  image_convert(type = 'grayscale') %>%
+  image_ocr() %>%
+  cat()
+
+
+cd <- image_read("~/gitProjects/uni/dpv/diary/r/assets/back-cover.jpg")
+
+cd <- image_crop(cd, "460x550+200+80")
+cd
+
+cd %>%
+  image_convert(type = 'grayscale') %>%
+  image_ocr() %>%
+  cat()
+
+# Try inverting the image
+cd <- image_negate(cd) %>%
+  image_convert(type="grayscale") %>%
+  image_ocr() %>%
+  cat()
+
+cd
