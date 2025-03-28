@@ -80,23 +80,37 @@ ggord(scaled_linear, paste0(wine5$quality),
       xlim=c(-6,8))
 
 # k-means raw
-km <- kmeans(wine5, 3, 100)
-fviz_cluster(km, data = wine5,
-             palette = c("#2E9FDF", "#00AFBB", "#E7B800"),
+get_color <- function(quality) {
+  colors <- rep(NA, length(quality))
+  colors[quality == 4] <- "red"
+  colors[quality == 5] <- "green"
+  colors[quality == 6] <- "blue"
+  colors[quality == 7] <- "purple"
+  
+  return(colors)
+}
+
+km <- kmeans(wine5[, 1:4], 4, 100)
+fviz_cluster(km, data = wine5[, 1:4],
              geom = "point",
              ellipse.type = "convex",
              ggtheme = theme_bw()
-)
+) +
+  geom_point(aes(color = get_color(wine5$quality))) +
+  scale_color_identity()
 
+
+print(km$centers)
+summary(km)
 # k-means scaled
-km_scaled <- kmeans(scale(wine5), 4, 100)
-fviz_cluster(km_scaled, data = wine5,
-             palette = c("#2E9FDF", "#00AFBB", "#E7B800", "#A83784"),
+
+km_scaled <- kmeans(scale(wine5[, 1:4]), 4, 100)
+fviz_cluster(km_scaled, data = wine5[, 1:4],
              geom = "point",
              ellipse.type = "convex",
              ggtheme = theme_bw()
-)
+) +
+  geom_point(aes(color = get_color(wine5$quality))) +
+  scale_color_identity()
 
-#TBD:
-# run k-means on pca like at end of slides
-# run k-means and lda with train- & test set to get right number of clusters
+print(km_scaled$centers)
