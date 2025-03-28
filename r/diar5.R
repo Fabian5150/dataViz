@@ -43,8 +43,7 @@ scatter3D(x, y, z,
           zlab = "Statistics",
           bty="b2",
           pch=19,
-          ticktype = "detailed",
-          type = "b"
+          ticktype = "detailed"
 )
 
 cor(math)
@@ -54,8 +53,8 @@ scatter3D(x, y, z,
           ylab = "Analysis",
           zlab = "Statistics",
           bty="b2",
-          colvar = NULL,
-          cex=0.5,
+          #colvar = NULL,
+          #cex=0.5,
           pch=19
 )
 
@@ -71,8 +70,8 @@ z.pred <- matrix(predict(fit, newdata = xy),
                  nrow = grid.lines, ncol = grid.lines)
 
 scatter3D(x, y, z,
-          #clab = c("Mechanics"),
-          #col = colors,
+          clab = c("Mechanics"),
+          col = colors,
           xlab = "Algebra",
           ylab = "Analysis",
           zlab = "Statistics",
@@ -80,7 +79,7 @@ scatter3D(x, y, z,
           pch=19,
           cex=0.5,
           ticktype = "detailed",
-          surf = list(x = x.pred, y = y.pred, z = z.pred, alpha=0.75)
+          surf = list(x = x.pred, y = y.pred, z = z.pred, alpha=0.65)
 )
 
 # Histogram
